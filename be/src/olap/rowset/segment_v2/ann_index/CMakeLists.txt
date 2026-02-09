@@ -15,6 +15,37 @@
 # specific language governing permissions and limitations
 # under the License.
 
+
+if (APPLE)
+    if (NOT DEFINED LIBOMP_PREFIX)
+        execute_process(
+                COMMAND brew --prefix --installed libomp
+                OUTPUT_VARIABLE LIBOMP_PREFIX
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                RESULT_VARIABLE BREW_CMD_RESULT
+                ERROR_QUIET
+        )
+
+        if (NOT ${BREW_CMD_RESULT} EQUAL 0)
+            message(FATAL_ERROR "
+                Error: libomp not found on macOS!
+                Please install libomp first via Homebrew: brew install libomp")
+        endif()
+    endif ()
+
+    set(OpenMP_C_INCLUDE_DIRS "${LIBOMP_PREFIX}/include")
+    set(OpenMP_C_LIBRARIES "${LIBOMP_PREFIX}/lib/libomp.dylib")
+    set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_PREFIX}/include")
+    set(OpenMP_C_LIB_NAMES "omp")
+
+    set(OpenMP_CXX_INCLUDE_DIRS "${LIBOMP_PREFIX}/include")
+    set(OpenMP_CXX_LIBRARIES "${LIBOMP_PREFIX}/lib/libomp.dylib")
+    set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_PREFIX}/include")
+    set(OpenMP_CXX_LIB_NAMES "omp")
+
+    set(OpenMP_omp_LIBRARY ${OpenMP_C_LIBRARIES})
+endif()
+
 add_subdirectory(cmake-protect)
 
 # Use all .cpp files in this directory as sources
